@@ -1,0 +1,16 @@
+flowchart LR
+  Pub[Público general] --> S
+  Est[Estudiantes] --> S
+  Prof[Profesores] --> S
+  Adm[Administrativos<br/>con roles internos] --> S
+  Alu[Egresados] --> S
+  S[EIEInfo<br/>monolito Django] --> DB[(MariaDB)]
+  S --> SMTP[Correo institucional]
+  S --> G[Google: calendario, búsqueda,<br/>Scholar, reCAPTCHA]
+  S --> RS[Facebook / Instagram]
+  S --> IM[Imgur]
+  S --> OC[OwnCloud]
+  Est -.->|navegador| FL[Firmador Libre local :3516]
+  CI[Drone CI] -->|build y pruebas| S
+  CI --> TG[Telegram y correo]
+  CI -->|SSH| F[Servidor de producción]

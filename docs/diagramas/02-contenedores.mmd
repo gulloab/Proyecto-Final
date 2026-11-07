@@ -1,0 +1,13 @@
+flowchart TB
+  subgraph CIDEV["CI y desarrollo (Docker Compose)"]
+    N[nginx :8080<br/>/media/tfg denegado] --> A[gunicorn + Django :8001]
+    A --> D[(MariaDB :3307 publicado)]
+    N --- V[(volúmenes static y media)]
+    A --- V
+  end
+  subgraph PROD["Producción (host faraday, inferido)"]
+    N2[nginx] --> A2[servicio eieinfo<br/>systemd + socket]
+    A2 --> D2[(Base de datos)]
+  end
+  DRONE[Drone CI] -->|docker compose| CIDEV
+  DRONE -->|SSH: solo git status| PROD
