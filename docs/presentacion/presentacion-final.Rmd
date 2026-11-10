@@ -1,0 +1,227 @@
+---
+title: "Auditoría de diseño de software: EIEInfo"
+subtitle: "Entrega 1 · Levantamiento del sistema y diagnóstico inicial"
+author: "Gabriel Ulloa - C27890 · IE0417 – Diseño de Software para Ingeniería"
+date: "12 de noviembre de 2026 · Commit auditado d7c8c1b"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+
+# Instala lo que falte (solo la primera vez; requiere internet)
+paquetes <- c("rmarkdown", "knitr", "DiagrammeR")
+faltan <- paquetes[!paquetes %in% rownames(installed.packages())]
+if (length(faltan)) install.packages(faltan, repos = "https://cloud.r-project.org")
+library(DiagrammeR)
+
+estilo <- 'graph [fontname="Helvetica"]
+  node [shape=box, style="rounded,filled", fillcolor="#f5f3ee", color="#5d6b78", fontname="Helvetica", fontsize=13]
+  edge [color="#5d6b78", fontname="Helvetica", fontsize=11]'
+```
+
+## El punto de partida
+
+Un sistema con **10 años de historia**, **2567 cambios** acumulados, **21 áreas internas** y unas **60 000 líneas de Python**.
+
+Pregunta de la entrega: **¿qué sistema tenemos enfrente y cómo está construido?**
+
+Trabajé siempre sobre una «fotografía» exacta: el commit `d7c8c1b` (14/10/2026).
+
+## Qué se pidió y qué se entregó
+
+| Requisito | Entregado |
+|---|---|
+| Ficha técnica | Piezas, tecnologías y conexiones del sistema |
+| Mapa del sistema | 3 diagramas |
+| Inventario funcional | Usuarios, roles, flujos y módulos críticos |
+| Hallazgos (8 a 15) | **15**, con evidencia, impacto y criticidad |
+| Matriz de riesgos | **10** riesgos priorizados |
+
+Regla de trabajo: **nada sin evidencia** (archivo, línea o comando).
+
+## Cómo hice el levantamiento
+
+| Herramienta | Qué es | Para qué la usé |
+|---|---|---|
+| Docker | Una «caja» que trae el sistema con todo lo que necesita | Verlo funcionando en mi computadora |
+| `recon.sh` | Script de «reconocimiento»: un programa pequeño que recorre el repositorio y junta datos | 11 archivos de datos en minutos |
+| `cloc` | *Count Lines Of Code*: cuenta líneas por lenguaje y carpeta | Medir el tamaño del sistema |
+| `git log` | Historial de cambios del proyecto | Ver qué archivos cambian más |
+| `grep` | Buscador de texto dentro de archivos | Hallar configuraciones y conexiones |
+
+## Una pista no es un hallazgo
+
+1. **Pista:** el script mostró que casi no había migraciones en el repositorio.
+2. **Verificación:** abrí `migraciones.sh` y vi un `find … -delete`.
+3. **Hallazgo:** las migraciones se **borran y regeneran** en cada arranque.
+4. **Registro:** evidencia E-007, E-008 (E-001 a E-028 en total).
+
+Cuando encontré claves, **no las copié ni las probé**: usé `sed` para ver solo los nombres.
+
+## Uso de asistentes de IA
+
+- Herramientas: **Codex, Antigravity, GitHub Copilot y Claude**
+- Apoyo en exploración, comandos, automatización y redacción
+- **La verificación no se delega:** cada hallazgo se contrastó con el repositorio
+- Me corregí varias veces (p. ej., sí existe CI: `.drone.yml`)
+
+## Las piezas del sistema
+
+| Pieza | Qué es | En EIEInfo |
+|---|---|---|
+| Django (monolito) | Marco de trabajo en Python; todo el sistema en un solo bloque | 21 apps internas |
+| MariaDB vía `mysqlclient` | MariaDB: la base de datos (compatible con MySQL). `mysqlclient`: el «traductor» con el que Python le habla | Guarda toda la información |
+| `settings.py` | El «panel de control»: base de datos, claves, modo de prueba o producción, hosts permitidos | Hay secretos y lógica por nombre de máquina |
+| Migraciones | El «historial de planos» de la base de datos: cada cambio queda registrado y se puede aplicar o deshacer | No se guardan y se regeneran |
+| nginx + gunicorn | La «recepción» que atiende y el servidor que ejecuta el sistema | nginx :8080 → gunicorn :8001 |
+
+## Cómo se prueba y se publica
+
+| Concepto | Qué es | En EIEInfo |
+|---|---|---|
+| CI (integración continua) | Cada cambio se arma y se prueba solo | Drone: ≈80 pruebas de humo + pruebas en 11 apps |
+| CD (despliegue continuo) | Lo que pasa las pruebas se publica solo | El paso «deployment» solo ejecuta `git status` |
+| `.drone.yml` | La «receta» del revisor automático: lista de pasos | 74 modificaciones en su historial |
+| Integraciones | Conexiones con servicios de terceros | Google, Facebook, Imgur, reCAPTCHA, OwnCloud, correo, Firmador Libre |
+| Entornos | Copias del sistema con distinto fin: desarrollo, pruebas, producción | Contenedores en CI y desarrollo; servidor aparte en producción (inferido) |
+
+## Quién lo usa
+
+| Usuario | Portal | Roles detectados |
+|---|---|---|
+| Estudiantes | `/estudiantes` | estudiante, bodega, proyecto eléctrico |
+| Profesores | `/profesores` | 11 (director, comisión de docencia, consejo asesor…) |
+| Administrativos | `/administrativos` | 5 (inventario, jefatura, recepción, asuntos estudiantiles…) |
+| Egresados / Público | `/alumni`, `/` | alumni / sin rol |
+
+**Módulos críticos:** `administrativos`, `profesores`, `estudiantes`, `cursos`, `webpage`, `firma_digital`
+
+## Mapa del sistema: contexto
+
+```{r contexto}
+grViz(paste0('digraph {
+  rankdir=LR; ', estilo, '
+  Pub [label="Público general"]; Est [label="Estudiantes"];
+  Prof [label="Profesores"]; Alu [label="Egresados"];
+  Adm [label="Administrativos\\n(roles internos)"];
+  S [label="EIEInfo\\nmonolito Django", fillcolor="#e8833a", fontcolor="white"];
+  DB [label="MariaDB", shape=cylinder];
+  SMTP [label="Correo institucional"];
+  G [label="Google: calendario,\\nbúsqueda, Scholar,\\nreCAPTCHA"];
+  RS [label="Facebook / Instagram"]; IM [label="Imgur"]; OC [label="OwnCloud"];
+  FL [label="Firmador Libre\\nlocal :3516"];
+  CI [label="Drone CI"]; TG [label="Telegram y correo"];
+  F [label="Servidor de\\nproducción"];
+  Pub -> S; Est -> S; Prof -> S; Adm -> S; Alu -> S;
+  S -> DB; S -> SMTP; S -> G; S -> RS; S -> IM; S -> OC;
+  Est -> FL [style=dashed, label="navegador"];
+  CI -> S [label="build y pruebas"]; CI -> TG; CI -> F [label="SSH"];
+}'), width = "100%", height = 430)
+```
+
+## Entornos: lo que se prueba no es lo que se usa
+
+```{r contenedores}
+grViz(paste0('digraph {
+  rankdir=TB; ', estilo, '
+  subgraph cluster_ci {
+    label="CI y desarrollo (Docker Compose)"; style=dashed; color="#5d6b78";
+    N [label="nginx :8080\\n/media/tfg denegado"];
+    A [label="gunicorn + Django :8001"];
+    D [label="MariaDB :3307 publicado", shape=cylinder];
+    V [label="volúmenes static y media", shape=cylinder];
+    N -> A; A -> D; N -> V [dir=none]; A -> V [dir=none];
+  }
+  subgraph cluster_prod {
+    label="Producción (host faraday, inferido)"; style=dashed; color="#5d6b78";
+    N2 [label="nginx"]; A2 [label="servicio eieinfo\\nsystemd + socket"];
+    D2 [label="Base de datos", shape=cylinder];
+    N2 -> A2; A2 -> D2;
+  }
+  DRONE [label="Drone CI", fillcolor="#e8833a", fontcolor="white"];
+  DRONE -> N [label="docker compose"];
+  DRONE -> N2 [label="SSH: solo git status"];
+}'), width = "100%", height = 430)
+```
+
+## Cómo están conectadas las áreas
+
+```{r dependencias}
+aristas <- data.frame(
+  de = c("profesores", "administrativos", "profesores", "administrativos", "cursos",
+         "profesores", "profesores", "estudiantes", "administrativos",
+         "trabajo_final_de_graduacion", "trabajo_final_de_graduacion",
+         "trabajo_final_de_graduacion", "profesores", "estudiantes", "estudiantes",
+         "inventario", "administrativos"),
+  a  = c("administrativos", "profesores", "cursos", "cursos", "administrativos",
+         "proyectos", "estudiantes", "administrativos", "estudiantes",
+         "profesores", "administrativos", "estudiantes", "webpage", "webpage",
+         "cursos", "administrativos", "webpage"),
+  n  = c(22, 8, 13, 10, 6, 10, 8, 7, 7, 7, 7, 5, 6, 6, 6, 5, 5)
+)
+grViz(paste0('digraph {
+  rankdir=LR; ', estilo, '
+  administrativos [fillcolor="#e8833a", fontcolor="white"];
+  ', paste(sprintf('%s -> %s [label="%g", penwidth=%.1f];',
+                   aristas$de, aristas$a, aristas$n, 1 + aristas$n / 8),
+           collapse = "\n  "), '
+}'), width = "100%", height = 430)
+```
+
+**16 de 20** áreas dependen de `administrativos` · **más de 25** parejas se necesitan mutuamente
+
+## Código frente a pruebas
+
+```{r tamano, fig.width=9, fig.height=4.6}
+apps <- c("profesores", "firma_digital", "administrativos",
+          "estudiantes", "trabajo_final_de_graduacion",
+          "solicitud_documentos_externo")
+vistas  <- c(5190, 2918, 2428, 1483, 1352, 511)
+pruebas <- c(3679, 6151, 1853,  442, 1289, 1829)
+
+par(mar = c(9, 4.5, 1, 1))
+barplot(rbind(vistas, pruebas), beside = TRUE, names.arg = apps,
+        las = 2, cex.names = 0.8, ylab = "Líneas de Python",
+        col = c("#c4601a", "#3a8fd6"), border = NA)
+legend("topright", legend = c("vistas (código)", "pruebas"),
+       fill = c("#c4601a", "#3a8fd6"), bty = "n")
+```
+
+La calidad no es pareja: `firma_digital` tiene más del doble de pruebas que de código; otras áreas casi ninguna.
+
+## Los 15 hallazgos en cuatro bloques
+
+| Bloque | De qué se trata | Ejemplo con evidencia | Gravedad |
+|---|---|---|---|
+| **1. Operación y configuración** (H-02, 03, 04, 05, 09) | Cómo se guardan los cambios de la base, cómo se decide el modo del sistema y cómo se publica | `migraciones.sh` borra y regenera las migraciones en cada arranque | Crítica |
+| **2. Seguridad y datos** (H-01, 14, 15) | Claves en el repositorio, un archivo con columna «Contraseña» y accesos repartidos en muchos puntos | `settings.py:345`, `.env`, `OwncloudProfesores.csv` | Crítica |
+| **3. Plataforma y pruebas** (H-06, 08) | Software base sin correcciones de seguridad y pruebas que cubren solo una parte | `python:buster`, Django 4.1.3; el CI prueba 11 de 21 áreas | Alta |
+| **4. Estructura y personas** (H-07, 10, 11, 12, 13) | Áreas enredadas, archivos enormes, dominio disperso y conocimiento en pocas manos | 16 de 20 áreas dependen de `administrativos`; un autor con ≈45 % de los commits | Alta |
+
+**Lo que une los cuatro bloques:** lo más serio está en **cómo se cuida y se opera** el sistema, no en la lógica del negocio.
+
+## Lo bueno, y cómo ordené los riesgos
+
+**Fortalezas:** revisor automático real · cultura de pruebas amplia · claves del pipeline bien resguardadas · protección de archivos de TFG en nginx · apps por dominio como base para ordenar
+
+| Prioridad (impacto × probabilidad) | Riesgo |
+|---|---|
+| **9** | Esquema de la base de datos irrecuperable |
+| 6 | Claves y datos mal usados · modo de prueba expuesto · publicación irrecuperable · software sin parches · cambios con efectos colaterales |
+
+## Lo que me llevo
+
+- **La evidencia le gana a la intuición**
+- **Los problemas serios no están donde uno mira primero:** estaban en el cuidado del sistema
+- **Con la IA se gana velocidad, pero la responsabilidad se queda**
+- **La información sensible se cuida:** no se copia, no se prueba, se avisa
+- **Leer un sistema es leer decisiones de personas:** se trata de entender, no de culpar
+
+**Entrega 2:** profundizar en 5 áreas · `pip-audit` · pantallas sin protección · confirmar si las claves son reales
+
+**Gracias.**
+
