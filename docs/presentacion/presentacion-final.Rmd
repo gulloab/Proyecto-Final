@@ -193,18 +193,16 @@ legend("topright", legend = c("vistas (código)", "pruebas"),
 
 La calidad no es pareja: `firma_digital` tiene más del doble de pruebas que de código; otras áreas casi ninguna.
 
-## Lo que más me preocupó
+## Los 15 hallazgos en cuatro bloques
 
-| ID | Hallazgo | Evidencia |
-|---|---|---|
-| H-02 · Crítica | Migraciones ignoradas y regeneradas | `migraciones.sh`, `.gitignore` |
-| H-01 · Crítica | Claves y secretos versionados | `settings.py:345`, `.env`, `.drone.yml` |
-| H-03 · Alta | Modo de prueba según el nombre de la máquina | `settings.py:478-493` |
-| H-05 · Alta | Dos configuraciones: 16 diferencias | `diff` de `settings.py` |
-| H-04 · Alta | Publicación manual, fuera de contenedores | `.drone.yml` |
-| H-06 · Alta | Software base sin correcciones de seguridad | `python:buster`, Django 4.1.3 |
-| H-07 · Alta | Áreas enredadas entre sí | Matriz de imports |
-| H-14 · Alta | CSV con columna «Contraseña» versionado | `OwncloudProfesores.csv` |
+| Bloque | De qué se trata | Ejemplo con evidencia | Gravedad |
+|---|---|---|---|
+| **1. Operación y configuración** (H-02, 03, 04, 05, 09) | Cómo se guardan los cambios de la base, cómo se decide el modo del sistema y cómo se publica | `migraciones.sh` borra y regenera las migraciones en cada arranque | Crítica |
+| **2. Seguridad y datos** (H-01, 14, 15) | Claves en el repositorio, un archivo con columna «Contraseña» y accesos repartidos en muchos puntos | `settings.py:345`, `.env`, `OwncloudProfesores.csv` | Crítica |
+| **3. Plataforma y pruebas** (H-06, 08) | Software base sin correcciones de seguridad y pruebas que cubren solo una parte | `python:buster`, Django 4.1.3; el CI prueba 11 de 21 áreas | Alta |
+| **4. Estructura y personas** (H-07, 10, 11, 12, 13) | Áreas enredadas, archivos enormes, dominio disperso y conocimiento en pocas manos | 16 de 20 áreas dependen de `administrativos`; un autor con ≈45 % de los commits | Alta |
+
+**Lo que une los cuatro bloques:** lo más serio está en **cómo se cuida y se opera** el sistema, no en la lógica del negocio.
 
 ## Lo bueno, y cómo ordené los riesgos
 
@@ -225,4 +223,5 @@ La calidad no es pareja: `firma_digital` tiene más del doble de pruebas que de 
 
 **Entrega 2:** profundizar en 5 áreas · `pip-audit` · pantallas sin protección · confirmar si las claves son reales
 
-**Gracias. ¿Preguntas?**
+**Gracias.**
+
