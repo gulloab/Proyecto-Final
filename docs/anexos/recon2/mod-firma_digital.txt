@@ -1,0 +1,48 @@
+=== firma_digital ===
+-- Tamaño: 11 archivos .py, 10175 líneas
+-- Plantillas .html: 14 | JS propio: 7
+-- Archivos más grandes:
+  6151 src/server/firma_digital/tests.py
+  2918 src/server/firma_digital/views.py
+   503 src/server/firma_digital/models.py
+   239 src/server/firma_digital/misc.py
+   177 src/server/firma_digital/admin.py
+-- Historial: primer commit 2025-09-14, último 2026-10-04
+   commits en 12 meses: 47 | autores distintos: 2
+-- Modelos: 8
+-- Vistas (def/clase View): 30
+   vistas-función: 2, sin decorador: 2 (heurística, a verificar)
+-- Decoradores de acceso usados:
+-- Imports hacia otras apps (salida):
+   -> administrativos: 4
+   -> profesores: 3
+-- Apps que importan este módulo (entrada):
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    94
+   ORM dentro de vistas         77
+   comentarios noqa             2
+   correo                       1
+   LaTeX, PDF, procesos, disco  0
+   HTTP externo                 1
+   Excel y reportes             0
+   respuestas HTTP y render     93
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      1
+   except desnudo               0
+   TODO / FIXME / HACK          2
+-- Pruebas: 456 test_ | saltadas: 0 | usos de fixtures: 0
+-- Complejidad (radon, C o peor):
+    C 1080:0 NotificarLoteDirectoresAJAXView - C (16)
+    M 1085:4 NotificarLoteDirectoresAJAXView.post - C (15)
+    C 1410:0 DescargarMisDocumentosZipView - C (15)
+    M 1415:4 DescargarMisDocumentosZipView.get - C (14)
+    F 821:0 _crear_pdf_desde_archivo - C (13)
+    M 1507:4 MisDocumentosView.get_context_data - C (13)
+    C 1719:0 SubirFirmadoManualView - C (12)
+    C 1211:0 DescargarPDFAPIView - C (11)
+    M 1723:4 SubirFirmadoManualView.post - C (11)
+
+17 blocks (classes, functions, methods) analyzed.
+Average complexity: C (16.529411764705884)
+-- flake8 (solo F y E722): 0

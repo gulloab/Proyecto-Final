@@ -1,0 +1,78 @@
+=== profesores ===
+-- Tamaño: 36 archivos .py, 11332 líneas
+-- Plantillas .html: 132 | JS propio: 0
+-- Archivos más grandes:
+  3679 src/server/profesores/tests.py
+  2117 src/server/profesores/views/consejo_asesor.py
+   978 src/server/profesores/views/trabajos_finales.py
+   852 src/server/profesores/forms.py
+   542 src/server/profesores/misc.py
+-- Historial: primer commit 2016-02-28, último 2026-09-29
+   commits en 12 meses: 58 | autores distintos: 24
+-- Modelos: 1
+-- Vistas (def/clase View): 138
+   vistas-función: 101, sin decorador: 9 (heurística, a verificar)
+-- Decoradores de acceso usados:
+     37 @profesor_login_required
+     30 @consejo_asesor_login_required
+     13 @director_login_required
+      5 @pe_login_required
+      4 @director_real_login_required
+      4 @comision_practicaprofesional_login_required
+      3 @tfg_login_required
+      2 @profesor_o_asistente_comision_docencia_login_required
+-- Imports hacia otras apps (salida):
+   -> administrativos: 22
+   -> cursos: 13
+   -> proyectos: 10
+   -> estudiantes: 8
+   -> webpage: 6
+   -> trabajos_finales: 4
+   -> anuncios: 4
+   -> laboratorios: 3
+   -> eventos: 3
+   -> alumni: 3
+   -> eieinfo: 2
+   -> trabajo_final_de_graduacion: 1
+   -> postulaciones: 1
+-- Apps que importan este módulo (entrada):
+   <- administrativos: 8
+   <- trabajo_final_de_graduacion: 7
+   <- atributos: 4
+   <- webpage: 3
+   <- scripts: 3
+   <- firma_digital: 3
+   <- trabajos_finales: 2
+   <- cursos: 2
+   <- proyectos: 1
+   <- postulaciones: 1
+   <- laboratorios: 1
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    202
+   ORM dentro de vistas         136
+   comentarios noqa             13
+   correo                       10
+   LaTeX, PDF, procesos, disco  0
+   HTTP externo                 0
+   Excel y reportes             12
+   respuestas HTTP y render     133
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      2
+   except desnudo               12
+   TODO / FIXME / HACK          0
+-- Pruebas: 211 test_ | saltadas: 0 | usos de fixtures: 14
+-- Complejidad (radon, C o peor):
+    F 702:0 horario_plan - C (13)
+src/server/profesores/views/cursos.py
+    F 129:0 grupo_editar_estudiantes - C (14)
+src/server/profesores/views/practica_profesional.py
+    F 40:0 detalles_practica_profesional - C (11)
+src/server/profesores/views/home.py
+    F 122:0 reservar_instalacion - C (11)
+src/server/profesores/views/trabajos_finales.py
+    F 99:0 concursos_proyecto_electrico - C (18)
+
+14 blocks (classes, functions, methods) analyzed.
+Average complexity: C (17.142857142857142)
+-- flake8 (solo F y E722): 10

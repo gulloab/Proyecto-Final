@@ -1,0 +1,55 @@
+=== trabajo_final_de_graduacion ===
+-- Tamaño: 10 archivos .py, 3968 líneas
+-- Plantillas .html: 27 | JS propio: 1
+-- Archivos más grandes:
+  1352 src/server/trabajo_final_de_graduacion/views.py
+  1289 src/server/trabajo_final_de_graduacion/tests.py
+   682 src/server/trabajo_final_de_graduacion/forms.py
+   314 src/server/trabajo_final_de_graduacion/models.py
+   149 src/server/trabajo_final_de_graduacion/precarga.py
+-- Historial: primer commit 2025-03-13, último 2026-08-13
+   commits en 12 meses: 13 | autores distintos: 4
+-- Modelos: 8
+-- Vistas (def/clase View): 26
+   vistas-función: 26, sin decorador: 6 (heurística, a verificar)
+-- Decoradores de acceso usados:
+      9 @comision_tfg_login_required
+      7 @estudiante_login_required
+      2 @revisor_or_comision_tfg_login_required
+      2 @profesor_login_required
+-- Imports hacia otras apps (salida):
+   -> profesores: 7
+   -> administrativos: 7
+   -> estudiantes: 5
+   -> webpage: 1
+   -> eieinfo: 1
+   -> cursos: 1
+-- Apps que importan este módulo (entrada):
+   <- profesores: 1
+   <- estudiantes: 1
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    56
+   ORM dentro de vistas         34
+   comentarios noqa             0
+   correo                       5
+   LaTeX, PDF, procesos, disco  3
+   HTTP externo                 0
+   Excel y reportes             4
+   respuestas HTTP y render     41
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      0
+   except desnudo               0
+   TODO / FIXME / HACK          0
+-- Pruebas: 74 test_ | saltadas: 0 | usos de fixtures: 4
+-- Complejidad (radon, C o peor):
+src/server/trabajo_final_de_graduacion/views.py
+    F 432:0 enviar_revision_propuesta_tfg - D (29)
+    F 935:0 parecer_comision_unificado - D (21)
+    F 823:0 listar_revisores_propuesta - C (16)
+    F 123:0 concursos_tfg - C (13)
+    F 249:0 listar_tfgs_profesor_asociado - C (11)
+
+5 blocks (classes, functions, methods) analyzed.
+Average complexity: C (18.0)
+-- flake8 (solo F y E722): 56

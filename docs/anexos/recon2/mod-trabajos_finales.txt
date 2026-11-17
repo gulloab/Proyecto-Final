@@ -1,0 +1,45 @@
+=== trabajos_finales ===
+-- Tamaño: 10 archivos .py, 2861 líneas
+-- Plantillas .html: 4 | JS propio: 0
+-- Archivos más grandes:
+  1313 src/server/trabajos_finales/models.py
+  1056 src/server/trabajos_finales/forms.py
+   149 src/server/trabajos_finales/reports.py
+   113 src/server/trabajos_finales/views.py
+    77 src/server/trabajos_finales/admin.py
+-- Historial: primer commit 2017-04-27, último 2026-05-23
+   commits en 12 meses: 3 | autores distintos: 11
+-- Modelos: 6
+-- Vistas (def/clase View): 3
+   vistas-función: 3, sin decorador: 3 (heurística, a verificar)
+-- Decoradores de acceso usados:
+-- Imports hacia otras apps (salida):
+   -> administrativos: 3
+   -> profesores: 2
+   -> webpage: 1
+   -> proyectos: 1
+   -> laboratorios: 1
+   -> estudiantes: 1
+   -> eieinfo: 1
+-- Apps que importan este módulo (entrada):
+   <- profesores: 4
+   <- estudiantes: 3
+   <- webpage: 1
+   <- proyecto_electrico: 1
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    46
+   ORM dentro de vistas         3
+   comentarios noqa             0
+   correo                       20
+   LaTeX, PDF, procesos, disco  0
+   HTTP externo                 0
+   Excel y reportes             5
+   respuestas HTTP y render     6
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      0
+   except desnudo               0
+   TODO / FIXME / HACK          0
+-- Pruebas: 5 test_ | saltadas: 0 | usos de fixtures: 0
+-- Complejidad (radon, C o peor):
+-- flake8 (solo F y E722): 3

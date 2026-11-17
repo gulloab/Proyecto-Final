@@ -1,0 +1,32 @@
+## 7.4 Auditoría de calidad del código
+
+El análisis estático (`radon`, `flake8`, `difflib` y `modulo.sh`) depurado de líneas comentadas evidencia siete patrones estructurales:
+
+1. **Archivos monolíticos y alta complejidad ciclomática:** Tanto el código legado como el nuevo concentran excesiva lógica en pocos archivos. Destacan `firma_digital/views.py` (2918 líneas, sin `forms.py`, 17 bloques con complejidad C o peor, incluidos 3 de rango D), `profesores/views/consejo_asesor.py` (2117 líneas, con `editar_grupo` en CC 33 y `CrearContextoProfesor` en CC 23), `trabajo_final_de_graduacion/views.py` (1352 líneas, con `enviar_revision_propuesta_tfg` en CC 29 y `parecer_comision_unificado` en CC 21) y `estudiantes/models.py` (1347 líneas).
+2. **Lógica de negocio en capas inadecuadas:** No existe una capa de servicios (`services.py` o casos de uso). Entre el 42 % y el 82 % de las llamadas al ORM (`.objects.`) residen directamente dentro de las vistas (`77/94` en `firma_digital`, `136/202` en `profesores`, `55/132` en `administrativos`, `44/73` en `estudiantes`, `34/56` en `trabajo_final_de_graduacion`), mezcladas con generación de PDF/LaTeX, reportes Excel y envío de correos.
+3. **Duplicación inter-modular:** El análisis con `difflib` identificó 8 funciones copiadas entre `administrativos/views/consejo_asesor.py` y `profesores/views/consejo_asesor.py` (348 de las 437 líneas del archivo de `administrativos`, con similitud de 0.95 a 1.0), destacando `resumen_ciclo` (158 líneas, CC 25, idéntica, E-071, E-077).
+4. **Convenciones inconsistentes:** Conviven ~20 decoradores de autorización propios (algunos importados bajo el alias engañoso `@login_required`, como en `administrativos/views/gestion_inventario.py:15-16`, E-060) con vistas basadas en clases que usan `LoginRequiredMixin` y mixins propios en `firma_digital` (E-063). Asimismo, `.flake8` ignora reglas como `W605` (escapes inválidos presentes en formularios de `estudiantes`, E-042) y excluye `settings.py` y `scripts/` (E-053).
+5. **Silenciamiento de errores y del linter:** De los 52 `except:` sin tipo fuera de pruebas, 42 están silenciados con `# noqa` (E-053). En `administrativos/templatetags/misc_tags.py:121-123`, un `except:` captura la ausencia de la función `get_profile_media`, haciendo que el muro de Instagram falle silenciosamente y siempre retorne vacío (E-062).
+6. **Código histórico y muerto:** Existen al menos ~1942 líneas comentadas con `##` distribuidas en 8 archivos de la implementación previa de TFG (E-076), incluyendo 685 de las 1313 líneas de `trabajos_finales/models.py` (E-075) y 475 de las 978 líneas de `profesores/views/trabajos_finales.py` (E-072).
+7. **Residuos en código reciente:** `trabajo_final_de_graduacion` acumula 56 avisos de `flake8` (35 imports sin usar `F401`, 16 imports repetidos `F811` en `forms.py`, 4 variables sin usar `F841` y 1 f-string sin campos `F541`, E-073, E-079).
+
+---
+
+## 7.5 Auditoría de pruebas y confiabilidad
+
+El repositorio contiene **1165 funciones de prueba (`test_`)** y ninguna marcada como saltada (`@skip`), lo que demuestra cultura de pruebas en el equipo, pero la confiabilidad real de la suite presenta vacíos críticos:
+
+* **Cobertura sumamente desigual:** `firma_digital` aporta 456 pruebas autosuficientes sin fixtures externos (11.3 pruebas por cada 100 líneas), y `profesores` suma 211 (2.8/100 LOC). Sin embargo, módulos de alto impacto como `estudiantes` (36 pruebas, 0.9/100 LOC) y `trabajos_finales` (5 pruebas, 0.2/100 LOC) carecen de red de seguridad ante regresiones.
+* **Vigilancia parcial en CI:** El pipeline de integración continua ejecuta pruebas únicamente sobre **11 de las 21 aplicaciones** del sistema, dejando fuera módulos como `trabajos_finales`, y no exige un umbral mínimo de cobertura.
+* **Migraciones ficticias en pruebas:** El pipeline borra y regenera las migraciones antes de correr las pruebas, por lo que nunca verifica conflictos reales de evolución de esquema ni migraciones de datos.
+* **Fricción de reproducibilidad local:** Al ejecutar la suite localmente se produce un error de permisos sobre la base de datos de pruebas (`acceso denegado a test_info`), indicando dependencias de configuración de motor no documentadas en el proyecto.
+
+---
+
+## 7.6 Auditoría de seguridad y operación
+
+* **Manejo de secretos (Crítico):** Se detectaron credenciales en texto claro dentro del repositorio y su historial: parámetros de correo e Imgur en `settings.py`, un token de integración en `.drone.yml` y un archivo con 14 contraseñas de profesores. *(Por ética profesional, ningún valor fue probado ni reproducido en esta auditoría).*
+* **Configuración sensible y entornos:** Existen dos archivos `settings.py` con 16 diferencias entre sí. El modo de producción se determina evaluando si el `hostname` del servidor coincide con `faraday`; ante cualquier despliegue en otro host o contenedor, `DEBUG` queda activo por defecto exponiendo trazas internas.
+* **Autenticación y superficies de inyección:** Los funcionarios se autentican contra `django.contrib.auth.User` (1:1), mientras que `Estudiante` gestiona su propia contraseña mediante `SetPassword` con sal aleatoria (`uuid4`) y `PBKDF2-SHA256` (E-070, E-079), esquema criptográfico sólido pero duplicado. En plantillas HTML se identificaron ~9 usos de `autoescape off` o filtro `|safe` (alimentados por usuarios internos, riesgo medio y condicionado) y 3 usos de `mark_safe` reportados por `bandit` (0 altos, 7 medios en 4 ubicaciones). Queda pendiente auditar el escape de caracteres especiales en los generadores de documentos PDF mediante LaTeX.
+* **Dependencias problemáticas:** El análisis contra la base pública **OSV** reporta avisos en `Pillow` (87 IDs) y `Django 4.1.3` (30 IDs; versión fuera de soporte oficial sin parches de seguridad). Aunque OSV puede contar doble un mismo fallo bajo identificadores CVE y GHSA, el riesgo de ejecutar un framework sin soporte es real. Asimismo, `PyPDF2` (4 avisos) figura en dependencias sin ser importado en ningún archivo, y el `requirements.txt` de la raíz apunta a un fork privado en GitHub inaccesible.
+* **Despliegue y observabilidad:** El proyecto no versiona archivos de migración y los regenera dinámicamente en cada arranque (`migraciones.sh`), impidiendo rollbacks controlados. En `.drone.yml`, la etapa de despliegue se limita a ejecutar `git status`, evidenciando un proceso manual en producción. Finalmente, fuera de producción, un segundo bloque `LOGGING` sobrescribe la configuración previa y restringe los registros únicamente a la salida estándar.

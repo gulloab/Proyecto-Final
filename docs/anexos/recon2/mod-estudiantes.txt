@@ -1,0 +1,57 @@
+=== estudiantes ===
+-- Tamaño: 26 archivos .py, 4551 líneas
+-- Plantillas .html: 60 | JS propio: 0
+-- Archivos más grandes:
+  1347 src/server/estudiantes/models.py
+   668 src/server/estudiantes/forms.py
+   442 src/server/estudiantes/tests.py
+   414 src/server/estudiantes/views/trabajos_finales.py
+   318 src/server/estudiantes/views/asistencias.py
+-- Historial: primer commit 2016-02-22, último 2026-09-09
+   commits en 12 meses: 22 | autores distintos: 18
+-- Modelos: 10
+-- Vistas (def/clase View): 36
+   vistas-función: 30, sin decorador: 5 (heurística, a verificar)
+-- Decoradores de acceso usados:
+     32 @estudiante_login_required
+-- Imports hacia otras apps (salida):
+   -> administrativos: 7
+   -> webpage: 6
+   -> cursos: 6
+   -> trabajos_finales: 3
+   -> eieinfo: 3
+   -> inventario: 2
+   -> alumni: 2
+   -> trabajo_final_de_graduacion: 1
+   -> proyectos: 1
+   -> laboratorios: 1
+   -> anuncios: 1
+-- Apps que importan este módulo (entrada):
+   <- profesores: 8
+   <- administrativos: 7
+   <- trabajo_final_de_graduacion: 5
+   <- inventario: 3
+   <- solicitud_documentos_externo: 2
+   <- conferencias: 2
+   <- webpage: 1
+   <- trabajos_finales: 1
+   <- scripts: 1
+   <- atributos: 1
+   <- asistencias: 1
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    73
+   ORM dentro de vistas         44
+   comentarios noqa             10
+   correo                       28
+   LaTeX, PDF, procesos, disco  2
+   HTTP externo                 0
+   Excel y reportes             5
+   respuestas HTTP y render     37
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      0
+   except desnudo               9
+   TODO / FIXME / HACK          0
+-- Pruebas: 36 test_ | saltadas: 0 | usos de fixtures: 2
+-- Complejidad (radon, C o peor):
+-- flake8 (solo F y E722): 4

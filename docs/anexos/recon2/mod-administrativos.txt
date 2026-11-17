@@ -1,0 +1,73 @@
+=== administrativos ===
+-- Tamaño: 33 archivos .py, 8009 líneas
+-- Plantillas .html: 68 | JS propio: 0
+-- Archivos más grandes:
+  1853 src/server/administrativos/tests.py
+  1217 src/server/administrativos/models.py
+   729 src/server/administrativos/forms.py
+   437 src/server/administrativos/views/consejo_asesor.py
+   332 src/server/administrativos/views/estudiantes.py
+-- Historial: primer commit 2017-01-10, último 2026-08-19
+   commits en 12 meses: 38 | autores distintos: 24
+-- Modelos: 16
+-- Vistas (def/clase View): 89
+   vistas-función: 69, sin decorador: 8 (heurística, a verificar)
+-- Decoradores de acceso usados:
+     45 @admin_login_required
+      7 @login_required
+      4 @jefatura_administrativa_login_required
+      3 @asuntos_estudiantiles_login_required
+-- Imports hacia otras apps (salida):
+   -> cursos: 10
+   -> profesores: 8
+   -> estudiantes: 7
+   -> eieinfo: 7
+   -> webpage: 5
+   -> proyectos: 4
+   -> inventario: 4
+   -> anuncios: 4
+   -> laboratorios: 3
+   -> eventos: 3
+-- Apps que importan este módulo (entrada):
+   <- profesores: 22
+   <- trabajo_final_de_graduacion: 7
+   <- estudiantes: 7
+   <- cursos: 6
+   <- inventario: 5
+   <- webpage: 4
+   <- solicitud_documentos_externo: 4
+   <- proyectos: 4
+   <- firma_digital: 4
+   <- trabajos_finales: 3
+   <- laboratorios: 3
+   <- alumni: 3
+   <- scripts: 2
+   <- eventos: 2
+   <- atributos: 2
+   <- anuncios: 2
+   <- conferencias: 1
+-- Señales de mezcla de responsabilidades (fuera de pruebas):
+   consultas ORM (.objects.)    132
+   ORM dentro de vistas         55
+   comentarios noqa             12
+   correo                       12
+   LaTeX, PDF, procesos, disco  0
+   HTTP externo                 0
+   Excel y reportes             12
+   respuestas HTTP y render     66
+   señales (signals)            0
+   SQL crudo                    0
+   csrf_exempt / mark_safe      0
+   except desnudo               14
+   TODO / FIXME / HACK          0
+-- Pruebas: 87 test_ | saltadas: 0 | usos de fixtures: 8
+-- Complejidad (radon, C o peor):
+src/server/administrativos/reportes.py
+    F 140:0 AgregarProyectosWorksheet - C (11)
+src/server/administrativos/views/consejo_asesor.py
+    F 129:0 resumen_ciclo - D (25)
+    F 373:0 consolidacion_aulas - C (14)
+
+3 blocks (classes, functions, methods) analyzed.
+Average complexity: C (16.666666666666668)
+-- flake8 (solo F y E722): 14
