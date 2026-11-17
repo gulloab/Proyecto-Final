@@ -1,0 +1,56 @@
+digraph ER {
+  rankdir=LR; compound=true; nodesep=0.5; ranksep=1.0; pad=0.3;
+  graph [fontname="Helvetica", fontsize=15, labelloc=t, label=<<b>Dominio de EIEInfo · diagrama entidad-relación simplificado (15 entidades)</b>>];
+  node  [shape=box, style="rounded,filled", fillcolor="#f5f3ee", color="#5d6b78", fontname="Helvetica", fontsize=12, margin="0.18,0.09"];
+  edge  [color="#5d6b78", fontname="Helvetica", fontsize=10, fontcolor="#3b4a58", arrowhead=none, labeldistance=1.6];
+
+  subgraph cluster_personas { label="Personas y cuentas"; fontname="Helvetica"; style="rounded,dashed"; color="#8a97a3";
+    Funcionario [label=<<b>Funcionario</b><br/><font point-size="10">base polimórfica · 1:1 con User de Django</font>>];
+    Administrativo; Profesor;
+    Estudiante [label=<<b>Estudiante</b><br/><font point-size="10">contraseña propia (PBKDF2)</font>>];
+    Roles;
+  }
+  subgraph cluster_org { label="Tiempo y organización (app administrativos)"; fontname="Helvetica"; style="rounded,dashed"; color="#8a97a3";
+    Ciclo_admin [label=<<b>Ciclo</b><br/><font point-size="10">(administrativos · ciclo lectivo)</font>>, fillcolor="#fbe3cf", color="#c4601a", penwidth=2];
+    Nombramiento;
+  }
+  subgraph cluster_acad { label="Académico (app cursos)"; fontname="Helvetica"; style="rounded,dashed"; color="#8a97a3";
+    PlantillaCurso [label=<<b>PlantillaCurso</b><br/><font point-size="10">base polimórfica</font>>];
+    Curso; Grupo;
+    Ciclo_cursos [label=<<b>Ciclo</b><br/><font point-size="10">(cursos · probable ciclo del plan)</font>>, fillcolor="#fbe3cf", color="#c4601a", penwidth=2, style="rounded,filled,dashed"];
+  }
+  subgraph cluster_asist { label="Asistencias (app estudiantes)"; fontname="Helvetica"; style="rounded,dashed"; color="#8a97a3";
+    Asistencia [label=<<b>Asistencia</b><br/><font point-size="10">base polimórfica · 5 subtipos</font>>];
+  }
+  subgraph cluster_tf { label="Trabajos finales"; fontname="Helvetica"; style="rounded,dashed"; color="#8a97a3";
+    TFG [label=<<b>TFG</b><br/><font point-size="10">modalidad nueva (2025)</font>>];
+    ComiteAsesor;
+    ProyectoElectrico [label=<<b>ProyectoElectrico</b><br/><font point-size="10">modalidad anterior</font>>];
+  }
+
+  // herencia (es un)
+  Administrativo -> Funcionario [arrowhead=empty, arrowsize=1.1, label="es un", style=bold];
+  Profesor       -> Funcionario [arrowhead=empty, arrowsize=1.1, label="es un", style=bold];
+  Curso          -> PlantillaCurso [arrowhead=empty, arrowsize=1.1, label="es un", style=bold];
+
+  // asociaciones
+  Funcionario -> Roles          [taillabel="N", headlabel="M", label="tiene"];
+  Funcionario -> Nombramiento   [taillabel="1", headlabel="N", label="recibe"];
+  Ciclo_admin -> Nombramiento   [taillabel="1", headlabel="N", label="en"];
+  Estudiante  -> Asistencia     [taillabel="1", headlabel="N", label="realiza"];
+  Funcionario -> Asistencia     [taillabel="1", headlabel="N", label="supervisa"];
+  Ciclo_admin -> Asistencia     [taillabel="1", headlabel="N", label="en"];
+  Curso       -> Grupo          [taillabel="1", headlabel="N", label="tiene"];
+  Profesor    -> Grupo          [taillabel="1", headlabel="N", label="imparte"];
+  Grupo       -> Estudiante     [taillabel="N", headlabel="M", label="matricula"];
+  Ciclo_cursos -> PlantillaCurso [taillabel="N", headlabel="M", label="ofrece", style=dashed, color="#c4601a"];
+  Profesor    -> ComiteAsesor   [taillabel="1", headlabel="N", label="integra (3)"];
+  ComiteAsesor -> TFG           [taillabel="1", headlabel="N", label="asesora"];
+  TFG         -> Estudiante     [taillabel="N", headlabel="M", label="autores"];
+  Ciclo_admin -> TFG            [taillabel="1", headlabel="N", label="en"];
+  Estudiante  -> ProyectoElectrico [taillabel="1", headlabel="N", label="realiza"];
+  Profesor    -> ProyectoElectrico [taillabel="1", headlabel="N", label="dirige"];
+  Ciclo_admin -> ProyectoElectrico [taillabel="1", headlabel="N", label="en"];
+
+  Leyenda [shape=note, style=filled, fillcolor="white", fontsize=10, label=<<b>Cómo leerlo</b><br align="left"/>Triángulo vacío: herencia («es un»).<br align="left"/>Naranja: dos modelos distintos llamados «Ciclo».<br align="left"/>N, M, 1: cardinalidad (simplificada).<br align="left"/>Fuente: models.py de 7 módulos (E-061, E-064, E-065).<br align="left"/>>];
+}

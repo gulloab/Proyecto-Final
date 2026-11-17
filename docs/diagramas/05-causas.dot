@@ -1,0 +1,51 @@
+digraph Causas {
+  rankdir=LR; nodesep=0.35; ranksep=0.9; pad=0.3;
+  graph [fontname="Helvetica", fontsize=15, labelloc=t, label=<<b>Cadenas causales entre los 18 hallazgos de la Entrega 2</b>>];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.14,0.07", color="#5d6b78"];
+  edge  [color="#5d6b78", fontname="Helvetica", fontsize=9, fontcolor="#3b4a58", arrowsize=0.8];
+
+  // severidad: crítico / alto / medio / bajo
+  H01 [label="H2-01\nSecretos versionados", fillcolor="#c0392b", fontcolor="white", color="#7b241c"];
+  H02 [label="H2-02\nMigraciones regeneradas", fillcolor="#c0392b", fontcolor="white", color="#7b241c"];
+  H03 [label="H2-03\nConfiguración divergente", fillcolor="#f0a35e"];
+  H04 [label="H2-04\nDespliegue manual", fillcolor="#f0a35e"];
+  H05 [label="H2-05\nDependencias con avisos", fillcolor="#f0a35e"];
+  H06 [label="H2-06\nPortales y acoplamiento", fillcolor="#f0a35e"];
+  H07 [label="H2-07\nSin capa de servicios", fillcolor="#f0a35e"];
+  H08 [label="H2-08\nPruebas no reproducibles", fillcolor="#f0a35e"];
+  H09 [label="H2-09\nContenido sin escape", fillcolor="#f6d58a"];
+  H10 [label="H2-10\nDominio ambiguo", fillcolor="#f6d58a"];
+  H11 [label="H2-11\nCódigo copiado", fillcolor="#f6d58a"];
+  H12 [label="H2-12\nArchivos enormes", fillcolor="#f6d58a"];
+  H13 [label="H2-13\nIdentidad heterogénea", fillcolor="#f6d58a"];
+  H14 [label="H2-14\nLinter silenciado", fillcolor="#f6d58a"];
+  H15 [label="H2-15\nConocimiento concentrado", fillcolor="#f6d58a"];
+  H16 [label="H2-16\nCódigo muerto", fillcolor="#d9dee3"];
+  H17 [label="H2-17\nResiduos en código nuevo", fillcolor="#d9dee3"];
+  H18 [label="H2-18\nLogging sobrescrito", fillcolor="#d9dee3"];
+
+  R1 [shape=ellipse, style=filled, fillcolor="#e8eef5", color="#2c5d8f", penwidth=2, label="Riesgo de regresión\nal cambiar el sistema"];
+  R2 [shape=ellipse, style=filled, fillcolor="#e8eef5", color="#2c5d8f", penwidth=2, label="El CI no garantiza lo\nque corre en producción"];
+  R3 [shape=ellipse, style=filled, fillcolor="#e8eef5", color="#2c5d8f", penwidth=2, label="Exposición de datos\ny de accesos"];
+  R4 [shape=ellipse, style=filled, fillcolor="#e8eef5", color="#2c5d8f", penwidth=2, label="Crecimiento orgánico\nsin gobierno técnico"];
+
+  // estructura
+  H06 -> H11; H06 -> H10; H06 -> R1 [label="acoplamiento"];
+  // lógica
+  H07 -> H12; H12 -> R1; H08 -> R1;
+  // entorno
+  H03 -> R2; H02 -> R2; H04 -> R2;
+  // seguridad
+  H01 -> R3; H05 -> R3; H03 -> R3 [label="DEBUG por hostname"];
+  H09 -> R3 [style=dashed, label="amplifica"]; H13 -> R3 [style=dashed, label="amplifica"];
+  // señales de crecimiento orgánico
+  H14 -> R4; H15 -> R4; H16 -> R4; H17 -> R4; H18 -> R4;
+
+  subgraph cluster_leyenda { label="Severidad"; fontname="Helvetica"; fontsize=10; style="rounded"; color="#8a97a3";
+    L1 [label="Crítico", fillcolor="#c0392b", fontcolor="white", fontsize=9];
+    L2 [label="Alto", fillcolor="#f0a35e", fontsize=9];
+    L3 [label="Medio", fillcolor="#f6d58a", fontsize=9];
+    L4 [label="Bajo", fillcolor="#d9dee3", fontsize=9];
+    L1 -> L2 -> L3 -> L4 [style=invis];
+  }
+}
