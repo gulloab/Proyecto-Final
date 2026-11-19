@@ -1,0 +1,58 @@
+flowchart TB
+  subgraph C1["1. Capa de Presentación (Portales Delgados)"]
+    AdmUI["Portal Administrativos<br/>(vistas delgadas)"]
+    ProfUI["Portal Profesores<br/>(vistas delgadas)"]
+    EstUI["Portal Estudiantes<br/>(vistas delgadas)"]
+    FirmaUI["Portal Firma Digital<br/>(UI / AJAX)"]
+    WebUI["Portal Público / Egresados<br/>(webpage / alumni)"]
+  end
+
+  subgraph C2["2. Capa de Servicios de Aplicación (services/)"]
+    CASvc["ConsejoAsesorService<br/>(resumen ciclo, nombramientos)"]
+    TFGSvc["TFGService<br/>(flujo único unificado)"]
+    FirmaSvc["FirmaDigitalService<br/>(comunicación Firmador)"]
+    MailSvc["EmailService<br/>(envío asíncrono)"]
+    DocSvc["ReportDocumentService<br/>(Excel y LaTeX seguro)"]
+  end
+
+  subgraph C3["3. Capa de Dominio y Núcleo Compartido"]
+    subgraph Core["core / comun (Sin vistas · Resuelve fan-in 16)"]
+      CicloLectivo["CicloLectivo"]
+      Funcionario["Funcionario (1:1 User)"]
+      Roles["Roles / Permisos Django"]
+      Lugar["Lugar / Aula"]
+    end
+
+    subgraph DomApps["Apps de Dominio Acíclicas"]
+      Cursos["cursos<br/>(CicloPlanEstudio)"]
+      TFG["trabajo_final_de_graduacion<br/>(sin código muerto)"]
+      Asist["asistencias / estudiantes<br/>(Asistencia 5 subtipos)"]
+      Inv["inventario / difusión<br/>(Pillow actualizado)"]
+    end
+  end
+
+  BD[(MariaDB<br/>Migraciones versionadas)]
+
+  %% Enlaces
+  AdmUI --> CASvc
+  AdmUI --> DocSvc
+  ProfUI --> CASvc
+  ProfUI --> TFGSvc
+  EstUI --> TFGSvc
+  FirmaUI --> FirmaSvc
+  WebUI --> Inv
+
+  CASvc --> MailSvc
+  CASvc --> DocSvc
+  TFGSvc --> MailSvc
+  TFGSvc --> DocSvc
+
+  CASvc --> Core
+  CASvc --> Cursos
+  TFGSvc --> TFG
+  TFGSvc --> Core
+  FirmaSvc --> Core
+
+  DomApps -.-> Core
+  Core --> BD
+  DomApps --> BD

@@ -115,3 +115,13 @@
 | E-087 | Pruebas: Django detecta 530 (456 + 74); error 1044 para `test_info`; 12 archivos con `mock` o `patch`; 38 usos de `fixtures =` |
 | E-088 | `settings.py:239` y `:502` (dos definiciones de `LOGGING`); 17 `print()` fuera de pruebas |
 | E-089 | `firma_digital/views.py:45-52`: el mixin `ProfesorOAdminLoginRequired` verifica `prof_id` o `admn_id` en la sesión |
+
+## Entrega 3 · validación empírica, dependencias y arquitectura (E-090 a E-093)
+
+| ID | Ubicación | Observación |
+|---|---|---|
+| E-090 | Salida limpia de `modulo(1).sh` | 4 524 líneas comentadas acumuladas en 6 módulos; `trabajos_finales` tiene 1 385 líneas comentadas de 2 861 (48.4 %); consultas ORM en vistas sin comentarios: `profesores` 118, `firma_digital` 77, `administrativos` 55, `estudiantes` 38, `trabajo_final_de_graduacion` 34, `trabajos_finales` 2 |
+| E-091 | Consulta a metadatos de PyPI (`docker/django/requirements.txt`) | `django-classy-tags` (4.0.0) y `django-sekizai` (4.0.0) tienen como versión máxima declarada Django 4.2; `django-instagram` (0.3.2) solo soporta Django 3.0; `django-datetime-widget2` (0.9.5) está abandonada (Django sin declarar); `django-polymorphic`, `sorl-thumbnail`, `martor` y `django-select2` soportan Django hasta 6.1 |
+| E-092 | `python -Wd manage.py check` (contenedor) | `USE_L10N_DEPRECATED_MSG` (obsoleto en Django 4.0, eliminado en Django 5.0); 14 avisos de `DeprecationWarning: invalid escape sequence` por regex sin raw strings (`r"..."`) en `estudiantes/forms.py`, `conferencias/views.py`, `eventos/views.py` e `inventario/urls.py` |
+| E-093 | `grep -rn "ImageField" src/server` | Uso activo de `ImageField` en `administrativos/models.py:382`, `laboratorios/models.py:50`, `conferencias/models.py:28`, `anuncios/models.py:119` y 4 campos en `inventario/models.py:148-157`; confirma que Pillow 9.4.0 procesa activamente archivos subidos por usuarios (vector real para los 87 avisos de OSV) |
+

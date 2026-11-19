@@ -1,0 +1,109 @@
+digraph ArquitecturaObjetivo {
+  rankdir=TB; compound=true; nodesep=0.45; ranksep=0.75; pad=0.3;
+  graph [fontname="Helvetica", fontsize=15, labelloc=t, label=<<b>Arquitectura Objetivo: Monolito Modular con Capa de Servicios</b><br/><font point-size="11">Desacoplamiento de portales, inversión de dependencias y aislamiento del núcleo de dominio</font>>];
+  node  [shape=box, style="rounded,filled", fillcolor="#f5f3ee", color="#5d6b78", fontname="Helvetica", fontsize=11, margin="0.16,0.08"];
+  edge  [color="#5d6b78", fontname="Helvetica", fontsize=10, fontcolor="#3b4a58", arrowsize=0.8];
+
+  // ==========================================
+  // CAPA 1: PRESENTACIÓN (Portales y Vistas Delgadas)
+  // ==========================================
+  subgraph cluster_presentacion {
+    label=<<b>1. Capa de Presentación (Portales de Usuario · Vistas Delgadas)</b><br/><font point-size="10">Controladores HTTP, renderizado de plantillas, autorización con grupos y permisos Django estándar</font>>;
+    fontname="Helvetica"; style="rounded,filled"; fillcolor="#eef2f7"; color="#8a97a3";
+
+    UI_Admin   [label=<<b>Portal Administrativos</b><br/><font point-size="9">administrativos (vistas delgadas)</font>>, fillcolor="#ffffff"];
+    UI_Prof    [label=<<b>Portal Profesores</b><br/><font point-size="9">profesores (vistas delgadas)</font>>, fillcolor="#ffffff"];
+    UI_Est     [label=<<b>Portal Estudiantes</b><br/><font point-size="9">estudiantes (vistas delgadas)</font>>, fillcolor="#ffffff"];
+    UI_Alumni  [label=<<b>Portal Egresados</b><br/><font point-size="9">alumni (bolsa empleo)</font>>, fillcolor="#ffffff"];
+    UI_Web     [label=<<b>Sitio Público</b><br/><font point-size="9">webpage (noticias, estático)</font>>, fillcolor="#ffffff"];
+    UI_Firma   [label=<<b>Portal Firma Digital</b><br/><font point-size="9">firma_digital (UI y AJAX)</font>>, fillcolor="#ffffff"];
+  }
+
+  // ==========================================
+  // CAPA 2: SERVICIOS DE APLICACIÓN (services/)
+  // ==========================================
+  subgraph cluster_servicios {
+    label=<<b>2. Capa de Servicios de Aplicación (Lógica de Negocio y Orquestación)</b><br/><font point-size="10">Lógica pura, transacciones, generación de documentos y correo · Independiente de HTTP</font>>;
+    fontname="Helvetica"; style="rounded,filled"; fillcolor="#e8f4f8"; color="#5b92b6";
+
+    Svc_Consejo [label=<<b>ConsejoAsesorService</b><br/><font point-size="9">Unificación de 8 funciones duplicadas<br/>(resumen_ciclo, nombramientos)</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+    Svc_TFG     [label=<<b>TFGService</b><br/><font point-size="9">Flujo único de graduación y defensas<br/>(propuestas, revisiones, actas)</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+    Svc_Firma   [label=<<b>FirmaDigitalService</b><br/><font point-size="9">Emparejamiento, validación y<br/>comunicación con Firmador Libre</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+    Svc_Email   [label=<<b>EmailService</b><br/><font point-size="9">Plantillas asíncronas de correo<br/>(desacoplado de vistas)</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+    Svc_Report  [label=<<b>ReportDocumentService</b><br/><font point-size="9">Generación segura Excel y LaTeX/PDF<br/>(escape saneado y aislado)</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+    Svc_Inscrip [label=<<b>InscripcionAsistenciaService</b><br/><font point-size="9">Concursos y asignación de estudiantes</font>>, fillcolor="#ffffff", color="#2980b9", penwidth=1.5];
+  }
+
+  // ==========================================
+  // CAPA 3: DOMINIO Y PERSISTENCIA (Apps de Dominio y Core)
+  // ==========================================
+  subgraph cluster_dominio {
+    label=<<b>3. Capa de Dominio y Datos (Modelos y Reglas de Integridad)</b><br/><font point-size="10">Entidades con alta cohesión · Dependencias unidireccionales y acíclicas</font>>;
+    fontname="Helvetica"; style="rounded,filled"; fillcolor="#fbfcfd"; color="#8a97a3";
+
+    subgraph cluster_core {
+      label=<<b>core / comun (Núcleo Compartido sin Vistas)</b><br/><font point-size="9">Resuelve el fan-in 16 · Entidades institucionales base</font>>;
+      style="rounded,filled"; fillcolor="#fbe3cf"; color="#c4601a"; penwidth=2;
+
+      Core_Ciclo [label=<<b>CicloLectivo</b><br/><font point-size="9">Ciclo temporal único institucional</font>>, fillcolor="#ffffff"];
+      Core_Func  [label=<<b>Funcionario</b><br/><font point-size="9">1:1 User Django (base polimórfica)</font>>, fillcolor="#ffffff"];
+      Core_Roles [label=<<b>Roles / Permisos</b><br/><font point-size="9">Catálogo de autorización</font>>, fillcolor="#ffffff"];
+      Core_Lugar [label=<<b>Lugar / Aula</b><br/><font point-size="9">Infraestructura física</font>>, fillcolor="#ffffff"];
+    }
+
+    subgraph cluster_dom_apps {
+      label=<<b>Aplicaciones de Dominio Específicas</b>>;
+      style="rounded,dashed"; color="#8a97a3";
+
+      Dom_Cursos [label=<<b>cursos</b><br/><font point-size="9">PlantillaCurso, Curso, Grupo<br/><i>CicloPlanEstudio (renombrado)</i></font>>, fillcolor="#ffffff"];
+      Dom_TFG    [label=<<b>trabajo_final_de_graduacion</b><br/><font point-size="9">TFG, ComiteAsesor, Revision<br/>(absorbe dominio y retira código muerto)</font>>, fillcolor="#ffffff"];
+      Dom_Asist  [label=<<b>asistencias / estudiantes</b><br/><font point-size="9">Asistencia (5 subtipos), Concurso<br/>RequisitosGraduacion</font>>, fillcolor="#ffffff"];
+      Dom_Inv    [label=<<b>inventario / difusión</b><br/><font point-size="9">Bien, Prestamo, Anuncio, Evento<br/>(Pillow actualizado, sin django-instagram)</font>>, fillcolor="#ffffff"];
+    }
+  }
+
+  // Persistencia
+  BD [(<b>MariaDB</b><br/><font point-size="9">Historial de migraciones controlado y versionado</font>)];
+
+  // RELACIONES ENTRE CAPAS (Flujo descendente estricto)
+  UI_Admin  -> Svc_Consejo;
+  UI_Admin  -> Svc_Report;
+  UI_Prof   -> Svc_Consejo;
+  UI_Prof   -> Svc_TFG;
+  UI_Prof   -> Svc_Report;
+  UI_Est    -> Svc_Inscrip;
+  UI_Est    -> Svc_TFG;
+  UI_Firma  -> Svc_Firma;
+  UI_Web    -> Dom_Inv;
+  UI_Alumni -> Dom_Asist;
+
+  Svc_Consejo -> Svc_Email;
+  Svc_Consejo -> Svc_Report;
+  Svc_TFG     -> Svc_Email;
+  Svc_TFG     -> Svc_Report;
+  Svc_Inscrip -> Svc_Email;
+
+  Svc_Consejo -> Core_Ciclo;
+  Svc_Consejo -> Core_Func;
+  Svc_Consejo -> Dom_Cursos;
+  Svc_TFG     -> Dom_TFG;
+  Svc_TFG     -> Core_Ciclo;
+  Svc_Firma   -> Core_Func;
+  Svc_Inscrip -> Dom_Asist;
+  Svc_Report  -> Core_Lugar;
+
+  // Dependencias de dominio hacia el Core
+  Dom_Cursos -> Core_Ciclo [style=dashed, label="FK"];
+  Dom_TFG    -> Core_Ciclo [style=dashed, label="FK"];
+  Dom_TFG    -> Core_Func  [style=dashed, label="FK"];
+  Dom_Asist  -> Core_Ciclo [style=dashed, label="FK"];
+  Dom_Asist  -> Core_Func  [style=dashed, label="FK"];
+
+  // Acceso a datos
+  Core_Ciclo -> BD;
+  Core_Func  -> BD;
+  Dom_Cursos -> BD;
+  Dom_TFG    -> BD;
+  Dom_Asist  -> BD;
+  Dom_Inv    -> BD;
+}
